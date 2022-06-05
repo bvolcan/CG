@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <title>Trabalho final CG</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <link rel='stylesheet' href='./styles.css'>
+  </head>
+  <body>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.js'></script>
+    <script src='https://threejs.org/examples/js/controls/OrbitControls.js'></script>
+    <script src='./src/utils.js'></script>
+    <script src='./src/menu.js'></script>
+    <script src='./src/objects.js'></script>
+    <script src='./src/renders.js'></script>
+    <script src='./src/index.js'></script>
+
+    <span class='credits'>
+      By: Bruno Volcan
+    </span>
+    <h3 id='timer'>
+      Segundos
+    </h3>
+    <div class='background' id='background'>
+      <div class='messageContainer' id='startMenu'>
+        <h3 class='messageTitle'>
+          Trabalho final Computação Gráfica - UFPel
+        </h3>
+        <span class='messageArea'>
+          O objetivo do jogo é colocar as bolas dentro das caixas de mesma cor.
+        </span>
+        <span class='messageArea'>Para jogar é necessário apenas a utilização do mouse.</span>
+        <span class='messageArea'>Comandos:</span>
+        <span class='messageArea'>- Botão direito: empurra as bolas ao redor para longe</span>
+        <span class='messageArea'>- Botão esquerdo: controla a câmera</span>
+        <span class='messageArea'>- Botão do meio: zoom</span>
+        <div class='buttonsContainer'>
+          <button onClick='startGame()'>
+            Começar
+          </button>
+          <button style='display: none'>
+            Configurações
+          </button>
+        </div>
+      </div>
+      <div class='messageContainer' id='endMenu' style='display:none'>
+        <h3 class='messageTitle'>
+          Fim do jogo
+        </h3>
+        <span id='finalTime'></span>
+        <div class='buttonsContainer'>
+          <button onClick='restartGame()'>
+            Recomeçar
+          </button>
+      </div>
+    </div>
+  </body>
+</html>
