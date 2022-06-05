@@ -79,7 +79,7 @@ const objectMovement = () => {
     mousePosition = intersect(moveMouse).find(obj => obj.object.id === floor.id)
 
     for (object of sceneObjects) {
-        if (object.geometry.type === 'BoxGeometry') {
+        if (object.geometry.type === 'BoxGeometry' && object.userData.isGround === false) {
             object.BB.copy(object.geometry.boundingBox).applyMatrix4(object.matrixWorld)
         }
 
@@ -88,53 +88,70 @@ const objectMovement = () => {
             z: object.position.z - mousePosition?.point.z
         }
 
+        const mouseRelativeAngle = Math.atan2(objectPositionReference.x, objectPositionReference.z)
+
+        if (object.userData.name === 'SPHERE') {
+            if (object.position.x >= 47.5) {
+                object.position.x -= 1
+            }
+            if (object.position.x <= -47.5) {
+                object.position.x += 1
+            }
+            if (object.position.z >= 47.5) {
+                object.position.z -= 1
+            }
+            if (object.position.z <= -47.5) {
+                object.position.z += 1
+            }
+        }
+
         if (
             isClicked &&
             object.userData.name === 'SPHERE' &&
-            Math.abs(objectPositionReference.x) < 10 &&
-            Math.abs(objectPositionReference.z) < 10
+            Math.abs(objectPositionReference.x) < 7 &&
+            Math.abs(objectPositionReference.z) < 7
         ) {
-            if (objectPositionReference.x > 0 && object.position.x < 47.5) {
+            if (mouseRelativeAngle === 90 || mouseRelativeAngle === -90) {
                 object.position.x +=
-                    objectPositionReference.x < 0.5 ? 0 : 1 / Math.abs(objectPositionReference.x)
+                    0.5 * object.position.x < 0
+                        ? -Math.sin(-mouseRelativeAngle)
+                        : Math.sin(-mouseRelativeAngle)
+                object.position.z += 0.5 * Math.cos(-mouseRelativeAngle)
+
                 if (checkCollision(object)) {
                     object.position.x -=
-                        objectPositionReference.x < 0.5
-                            ? 0
-                            : (2 * 1) / Math.abs(objectPositionReference.x)
+                        2 * object.position.x < 0
+                            ? -Math.sin(-mouseRelativeAngle)
+                            : Math.sin(-mouseRelativeAngle)
+                    object.position.z -= 2 * Math.cos(-mouseRelativeAngle)
                 }
-            } else {
-                if (object.position.x > -47.5) {
-                    object.position.x -=
-                        objectPositionReference.x > -0.5
-                            ? 0
-                            : 1 / Math.abs(objectPositionReference.x)
-                    if (checkCollision(object))
-                        object.position.x +=
-                            objectPositionReference.x > -0.5
-                                ? 0
-                                : (2 * 1) / Math.abs(objectPositionReference.x)
-                }
-            }
-            if (objectPositionReference.z > 0 && object.position.z < 47.5) {
+            } else if (mouseRelativeAngle > 0) {
+                object.position.x += 0.5 * -Math.sin(mouseRelativeAngle - Math.PI)
                 object.position.z +=
-                    objectPositionReference.z < 0.5 ? 0 : 1 / Math.abs(objectPositionReference.z)
-                if (checkCollision(object))
+                    0.5 * object.position.z < 0
+                        ? -Math.cos(mouseRelativeAngle - Math.PI)
+                        : -Math.cos(mouseRelativeAngle + Math.PI)
+
+                if (checkCollision(object)) {
+                    object.position.x -= 2 * -Math.sin(mouseRelativeAngle - Math.PI)
                     object.position.z -=
-                        objectPositionReference.z < 0.5
-                            ? 0
-                            : (2 * 1) / Math.abs(objectPositionReference.z)
+                        2 * object.position.z < 0
+                            ? -Math.cos(mouseRelativeAngle - Math.PI)
+                            : -Math.cos(mouseRelativeAngle + Math.PI)
+                }
             } else {
-                if (object.position.z > -47.5) {
+                object.position.x += 0.5 * -Math.sin(mouseRelativeAngle + Math.PI)
+                object.position.z +=
+                    0.5 * object.position.z < 0
+                        ? -Math.cos(mouseRelativeAngle + Math.PI)
+                        : -Math.cos(mouseRelativeAngle - Math.PI)
+
+                if (checkCollision(object)) {
+                    object.position.x -= 2 * -Math.sin(mouseRelativeAngle + Math.PI)
                     object.position.z -=
-                        objectPositionReference.z > -0.5
-                            ? 0
-                            : 1 / Math.abs(objectPositionReference.z)
-                    if (checkCollision(object))
-                        object.position.z +=
-                            objectPositionReference.z > -0.5
-                                ? 0
-                                : (2 * 1) / Math.abs(objectPositionReference.z)
+                        2 * object.position.z < 0
+                            ? -Math.cos(mouseRelativeAngle + Math.PI)
+                            : -Math.cos(mouseRelativeAngle - Math.PI)
                 }
             }
         }
@@ -144,7 +161,9 @@ const objectMovement = () => {
 const checkCollision = object => {
     object.BB.copy(object.geometry.boundingBox).applyMatrix4(object.matrixWorld)
     const collided = sceneObjects.find(obj =>
-        object.id === obj.id ? false : object.BB.intersectsBox(obj.BB)
+        object.id === obj.id || obj.userData.isGround === true
+            ? false
+            : object.BB.intersectsBox(obj.BB)
     )
 
     if (collided) {
